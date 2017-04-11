@@ -8,6 +8,7 @@ Our site will be a blog about what was cooked for dinner at the guesthouse (or e
 - Heroku
 - Use Joi validation
 
+
 ## User Stories
 **As a bored internet browser who navigates to the home page:**
 > I want to see a list of posts about different dinners which were cooked
