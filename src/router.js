@@ -1,4 +1,5 @@
 const path = require('path');
+require('env2')('./config.env');
 const dbQueries = require('./db_queries.js');
 
 const staticFiles = {
@@ -18,7 +19,7 @@ const login = {
     const loginContent = {
       text: 'Login'
     };
-    return reply.view('login', loginContent);
+    return reply.view('login-btn', loginContent);
   }
 };
 
