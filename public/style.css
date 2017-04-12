@@ -47,4 +47,12 @@ header {
 
 .content-wrapper {
   margin-top: 100px;
+  text-align: center;
+}
+
+.login-button {
+  margin: 5rem;
+  width: 10rem;
+  height: 4rem;
+  border-radius: 10%;
 }

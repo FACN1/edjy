@@ -11,9 +11,20 @@ const staticFiles = {
   }
 };
 
-const index = {
+const login = {
   method: 'GET',
   path: '/',
+  handler: (request, reply) => {
+    const loginContent = {
+      text: 'Login'
+    };
+    return reply.view('login', loginContent);
+  }
+};
+
+const index = {
+  method: 'GET',
+  path: '/home',
   handler: (request, reply) => {
     dbQueries.getPosts((err, postsArray) => {
       if (err) {
@@ -50,5 +61,5 @@ const createPost = {
 };
 
 module.exports = [
-  staticFiles, index, add, createPost
+  staticFiles, index, add, createPost, login
 ];
