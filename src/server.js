@@ -15,6 +15,12 @@ server.connection({
 
 server.register([inert, vision], (err) => {
   if (err) throw err;
+  server.state('session', {
+    ttl: 24 * 60 * 60 * 1000,     // One day
+    isSecure: true,
+    path: '/',
+    encoding: 'base64json'
+  });
 
   server.views({
     engines: {
