@@ -1,6 +1,7 @@
 const path = require('path');
 require('env2')('./config.env');
 const dbQueries = require('./db_queries.js');
+const querystring = require('querystring');
 
 const staticFiles = {
   method: 'GET',
@@ -12,7 +13,7 @@ const staticFiles = {
   }
 };
 
-const login = {
+const loginButton = {
   method: 'GET',
   path: '/',
   handler: (request, reply) => {
@@ -20,6 +21,22 @@ const login = {
       text: 'Login'
     };
     return reply.view('login-btn', loginContent);
+  }
+};
+
+// Send user to github to authenticate with github and grant permission.
+// Then redirect back to '/welcome' route
+const githubOAuth = {
+  method: 'GET',
+  path: '/login',
+  handler: (request, reply) => {
+    const base = 'https://github.com/login/oauth/authorize?';
+    const oAuthParams = {
+      client_id: process.env.CLIENT_ID,
+      redirect_uri: 'https://localhost:4040/welcome'
+    };
+    const authReqUrl = base + querystring.stringify(oAuthParams);
+    reply.redirect(authReqUrl);
   }
 };
 
@@ -62,5 +79,5 @@ const createPost = {
 };
 
 module.exports = [
-  staticFiles, index, add, createPost, login
+  staticFiles, index, add, createPost, loginButton, githubOAuth
 ];
