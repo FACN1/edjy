@@ -3,18 +3,39 @@ const vision = require('vision');
 const routes = require('./router.js');
 const inert = require('inert');
 const handlebars = require('handlebars');
+const hapiAuth = require('hapi-auth-jwt2');
 
 const port = process.env.PORT || 4040;
 
-const server = new hapi.Server();
+const server = new hapi.Server({
+  connections: {
+    state: {
+      isSameSite: 'Lax'
+    }
+  }
+});
 
 
 server.connection({
   port
 });
 
-server.register([inert, vision], (err) => {
+server.register([inert, vision, hapiAuth], (err) => {
   if (err) throw err;
+
+  const validate = (token, validateRequest, callback) => {
+    if (!token) {
+      return callback(null, false);
+    }
+    return callback(null, true);
+  };
+  server.auth.strategy('jwt', 'jwt', {
+    key: process.env.SECRET,
+    validateFunc: validate,
+    verifyOptions: {
+      algorithms: ['HS256']
+    }
+  });
 
   server.views({
     engines: {
