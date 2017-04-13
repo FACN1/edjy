@@ -119,7 +119,7 @@ const welcome = {
         jwt.sign(payload, secret, JWTOptions, (jwterror, token) => {
           if (jwterror) throw jwterror;
           return reply.redirect('/home').state('token', token, {
-            path: '/home',
+            path: '/',
             isHttpOnly: false,
             isSecure: process.env.NODE_ENV === 'PRODUCTION'
           });
