@@ -3,6 +3,7 @@ require('env2')('./config.env');
 const dbQueries = require('./db_queries.js');
 const querystring = require('querystring');
 const requestModule = require('request');
+const jwt = require('jsonwebtoken');
 
 const staticFiles = {
   method: 'GET',
@@ -56,46 +57,77 @@ const welcome = {
       json: true,
       url: 'https://github.com/login/oauth/access_token'
     };
-    // https://github.com/login/oauth/access_token
     // make a post request with temp Code
     requestModule(options, (error, response, body) => {
       if (error) return reply(error);
+
+      const myToken = body.access_token;
 
       if (!body.access_token) {
         return reply('no access token found');
       }
 
-      return reply.redirect('/home');
+      requestModule.get({
+        url: 'https://api.github.com/user',
+        headers: {
+          'User-Agent': 'oauth_github_jwt',
+          Authorization: `token ${body.access_token}`
+        }
+      },
+      (error, response, body) => {
+        const JWTOptions = {
+          expiresIn: Date.now() + (24 * 60 * 60 * 1000),
+          subject: 'github-data'
+        };
+        const parsedBody = body;
 
-      // console.log('access token = ',body.access_token);
+        const payload = {
+          user: {
+            username: parsedBody.login,
+            img_url: parsedBody.avatar_url,
+            user_id: parsedBody.id
+          },
+          accessToken: myToken
+        };
+
+        const secret = process.env.SECRET;
+
+        jwt.sign(payload, secret, JWTOptions, (jwterror, token) => {
+          if (jwterror) console.log(jwterror);
+          return reply.redirect('/home').state('token', token, {
+            path: '/home',
+            isHttpOnly: false,
+            isSecure: process.env.NODE_ENV === 'PRODUCTION'
+          });
+        });
+      }
+      );
     });
-    // and exchange code for access token
-    // reply.redirect('/home');
   }
 };
 
 const index = {
   method: 'GET',
   path: '/home',
-  handler: (request, reply) => {
-    let session = request.state.session;
-    console.log('state = ', request.state.session);
-
-    if (!session) {
-      session = { user: 'bob' };
+  config: {
+    auth: {
+      mode: 'optional',
+      strategy: 'jwt'
     }
-
-    session.last = Date.now();
-
-    dbQueries.getPosts((err, postsArray) => {
-      if (err) {
-        return reply(err);
-      }
-      const context = {
-        posts: postsArray.reverse()
-      };
-      return reply.view('index', context).state('session', session);
-    });
+  },
+  handler: (request, reply) => {
+    if(request.auth.isAuthenticated) {
+      return dbQueries.getPosts((err, postsArray) => {
+        if (err) {
+          return reply(err);
+        }
+        const context = {
+          posts: postsArray.reverse()
+        };
+        return reply.view('index', context);
+      });
+    }
+    return reply.redirect('/');
   }
 };
 
