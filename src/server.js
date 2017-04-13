@@ -29,7 +29,7 @@ server.register([inert, vision, hapiAuth], (err) => {
     }
     return callback(null, true);
   };
-  server.auth.strategy('jwt', 'jwt', {
+  server.auth.strategy('jwt', 'jwt', 'required', {
     key: process.env.SECRET,
     validateFunc: validate,
     verifyOptions: {

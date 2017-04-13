@@ -8,6 +8,12 @@ const jwt = require('jsonwebtoken');
 const staticFiles = {
   method: 'GET',
   path: '/{file}',
+  config: {
+    auth: {
+      strategy: 'jwt',
+      mode: 'optional'
+    }
+  },
   handler: {
     directory: {
       path: path.join(__dirname, '../public')
@@ -18,6 +24,12 @@ const staticFiles = {
 const loginButton = {
   method: 'GET',
   path: '/',
+  config: {
+    auth: {
+      strategy: 'jwt',
+      mode: 'optional'
+    }
+  },
   handler: (request, reply) => {
     const loginContent = {
       text: 'Login'
@@ -31,6 +43,12 @@ const loginButton = {
 const githubOAuth = {
   method: 'GET',
   path: '/login',
+  config: {
+    auth: {
+      strategy: 'jwt',
+      mode: 'optional'
+    }
+  },
   handler: (request, reply) => {
     const base = 'https://github.com/login/oauth/authorize?';
     const oAuthParams = {
@@ -45,6 +63,12 @@ const githubOAuth = {
 const welcome = {
   method: 'GET',
   path: '/welcome',
+  config: {
+    auth: {
+      strategy: 'jwt',
+      mode: 'optional'
+    }
+  },
   handler: (request, reply) => {
     const data = {
       client_id: process.env.CLIENT_ID,
