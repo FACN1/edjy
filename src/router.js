@@ -67,19 +67,19 @@ const welcome = {
         return reply('no access token found');
       }
 
-      requestModule.get({
+      return requestModule.get({
         url: 'https://api.github.com/user',
         headers: {
           'User-Agent': 'oauth_github_jwt',
           Authorization: `token ${body.access_token}`
         }
       },
-      (error, response, body) => {
+      (getError, getResponse, getBody) => {
         const JWTOptions = {
           expiresIn: Date.now() + (24 * 60 * 60 * 1000),
           subject: 'github-data'
         };
-        const parsedBody = body;
+        const parsedBody = getBody;
 
         const payload = {
           user: {
@@ -93,7 +93,7 @@ const welcome = {
         const secret = process.env.SECRET;
 
         jwt.sign(payload, secret, JWTOptions, (jwterror, token) => {
-          if (jwterror) console.log(jwterror);
+          if (jwterror) throw jwterror;
           return reply.redirect('/home').state('token', token, {
             path: '/home',
             isHttpOnly: false,
@@ -116,7 +116,7 @@ const index = {
     }
   },
   handler: (request, reply) => {
-    if(request.auth.isAuthenticated) {
+    if (request.auth.isAuthenticated) {
       return dbQueries.getPosts((err, postsArray) => {
         if (err) {
           return reply(err);
